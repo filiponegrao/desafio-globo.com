@@ -1,0 +1,93 @@
+# Group Bookmarks
+Welcome to the bookmarks API. This API provides access to the bookmarks service.
+
+## bookmarks [/bookmarks]
+
+### Create bookmark [POST]
+
+Create a new bookmark
+
++ Request bookmark (application/json; charset=utf-8)
+    + Headers
+
+            Accept: application/vnd.filiponegrao+json
+    + Attributes
+
+        + owner (user)
+        + user_id: 1 (number)
+        + comment: COMMENT (string)
+
++ Response 201 (application/json; charset=utf-8)
+    + Attributes (bookmark, fixed)
+
+### Get bookmarks [GET]
+
+Returns a bookmark list.
+
++ Request (application/json; charset=utf-8)
+    + Headers
+
+            Accept: application/vnd.filiponegrao+json
+
++ Response 200 (application/json; charset=utf-8)
+    + Attributes (array, fixed)
+        + (bookmark)
+
+## bookmark details [/bookmarks/{id}]
+
++ Parameters
+    + id: `1` (enum[string]) - The ID of the desired bookmark.
+        + Members
+            + `1`
+            + `2`
+            + `3`
+
+### Get bookmark [GET]
+
+Returns a bookmark.
+
++ Request (application/json; charset=utf-8)
+    + Headers
+
+            Accept: application/vnd.filiponegrao+json
+
++ Response 200 (application/json; charset=utf-8)
+    + Attributes (bookmark, fixed)
+
+### Update bookmark [PUT]
+
+Update a bookmark.
+
++ Request bookmark (application/json; charset=utf-8)
+    + Headers
+
+            Accept: application/vnd.filiponegrao+json
+    + Attributes
+
+        + owner (user)
+        + user_id: 1 (number)
+        + comment: COMMENT (string)
+
++ Response 200 (application/json; charset=utf-8)
+    + Attributes (bookmark, fixed)
+
+### Delete bookmark [DELETE]
+
+Delete a bookmark.
+
++ Request (application/json; charset=utf-8)
+    + Headers
+
+            Accept: application/vnd.filiponegrao+json
+
++ Response 204
+
+# Data Structures
+## bookmark (object)
+
++ id: *1* (number)
++ owner (user)
++ user_id: *1* (number)
++ comment: *COMMENT* (string)
++ createdAt: `*2000-01-01 00:00:00*` (string)
++ updatedAt: `*2000-01-01 00:00:00*` (string)

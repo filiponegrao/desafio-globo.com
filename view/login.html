@@ -1,0 +1,50 @@
+<html>
+
+<head>
+    <title>Bookmats - Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style type="text/css" media="screen">
+    
+        .center {
+            background: white;
+            margin: auto;
+            width: 500px;
+            max-width: 80%;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 3px 3px 3px #ccc;
+        }
+
+        .login-button {
+            width: 50%;
+            background-color: #db2f68;
+            color: white;
+        }
+
+        .login-form {
+            padding: 30px;
+        }
+
+        .header-bar {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="bg">
+        <div class="custom-container">
+            <div class="center">
+                <form class="login-form">
+                    <input class="form-control" type="text" name="email" placeholder="email@servior.com" required />
+                    <br>
+                    <input class="form-control" type="password" name="password" placeholder="senha" required />
+                    <br><br><br><br>
+                    <button class="btn btn-default login-button" (click)="login();">Entrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
