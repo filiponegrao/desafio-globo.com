@@ -3,14 +3,23 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
+	"github.com/badoux/checkmail"
 	dbpkg "github.com/filiponegrao/desafio-globo.com/db"
 	"github.com/filiponegrao/desafio-globo.com/helper"
 	"github.com/filiponegrao/desafio-globo.com/models"
+	"github.com/filiponegrao/desafio-globo.com/tools"
 	"github.com/filiponegrao/desafio-globo.com/version"
 
 	"github.com/gin-gonic/gin"
 )
+
+var Router *gin.Engine
+
+func Config(r *gin.Engine) {
+	Router = r
+}
 
 func GetUsers(c *gin.Context) {
 	ver, err := version.New(c)
@@ -142,12 +151,6 @@ func GetUser(c *gin.Context) {
 }
 
 func CreateUser(c *gin.Context) {
-	ver, err := version.New(c)
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
 	db := dbpkg.DBInstance(c)
 	user := models.User{}
 
@@ -156,17 +159,52 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
+	missing := user.MissingFields()
+	if missing != "" {
+		message := "Faltando campo de " + missing
+		c.HTML(200, "register.html", gin.H{"message": message})
+		return
+	}
+
+	// Valida o email
+	err := checkmail.ValidateFormat(user.Email)
+	if err != nil {
+		message := "E-mail não possui um formato valido"
+		c.HTML(200, "register.html", gin.H{"message": message})
+		return
+	}
+
+	if user.Password != user.ConfirmPassowrd {
+		message := "Senhas precisam ser iguais"
+		c.HTML(200, "register.html", gin.H{"message": message})
+		return
+	}
+
+	if !checkPassword(user.Password) {
+		message := "Senha não confere com o padrão desejado!"
+		c.HTML(200, "register.html", gin.H{"message": message})
+		return
+	}
+
+	passwordEncoded := tools.EncryptTextSHA512(user.Password)
+	user.Password = passwordEncoded
+
 	if err := db.Create(&user).Error; err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
+	c.HTML(200, "login.html", gin.H{"message": "Usuário cadastrado!"})
+}
 
-	if version.Range("1.0.0", "<=", ver) && version.Range(ver, "<", "2.0.0") {
-		// conditional branch by version.
-		// 1.0.0 <= this version < 2.0.0 !!
+func checkPassword(password string) bool {
+	if len(password) < 6 {
+		return false
+	} else if !strings.ContainsAny(password, "0123456789") {
+		return false
+	} else if !strings.ContainsAny(password, "!@#$%*()-=+<>;:|/\\") {
+		return false
 	}
-
-	c.JSON(201, user)
+	return true
 }
 
 func UpdateUser(c *gin.Context) {
