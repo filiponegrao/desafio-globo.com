@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"strings"
 
 	jwt "github.com/appleboy/gin-jwt"
@@ -47,6 +46,7 @@ func UserUnauthorized(c *gin.Context, code int, message string) {
 		err = "Email ou senha incorreta"
 	} else if strings.Contains(message, "cookie token is empty") {
 		err = "Faltando HEADER de autenticação!"
+		c.Redirect(303, "/login")
 	} else {
 		err = message
 	}
@@ -68,14 +68,15 @@ func UserAuthentication(c *gin.Context) (interface{}, error) {
 
 	if email == "" {
 		message := "Faltando email"
-		c.JSON(400, gin.H{"error": message})
-		return nil, errors.New(message)
+		// c.JSON(400, gin.H{"error": message})
+		c.HTML(200, "login.html", gin.H{"message": message})
+		return nil, nil
 	}
 
 	if password == "" {
 		message := "Faltando senha (password)"
-		c.JSON(400, gin.H{"error": message})
-		return nil, errors.New(message)
+		c.HTML(200, "login.html", gin.H{"message": message})
+		return nil, nil
 	}
 
 	var user models.User
@@ -83,7 +84,8 @@ func UserAuthentication(c *gin.Context) (interface{}, error) {
 	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
 		//message := "Usuario com email " + email + " nao encontrado."
 		//c.JSON(400, gin.H{"error": message})
-		return nil, err
+		c.HTML(200, "login.html", gin.H{"message": "Usuário ou senha incorretos"})
+		return nil, nil
 	}
 
 	encPassword := tools.EncryptTextSHA512(password)
@@ -91,7 +93,9 @@ func UserAuthentication(c *gin.Context) (interface{}, error) {
 	if encPassword != user.Password {
 		//message := "Senha incorreta"
 		//c.JSON(400, gin.H{"error": message})
-		return nil, errors.New("Senha incorreta")
+		c.HTML(200, "login.html", gin.H{"message": "Usuário ou senha incorretos"})
+
+		return nil, nil
 	}
 
 	user.Password = ""

@@ -35,7 +35,11 @@
         <div class="center">
             <H3 class="my-3">My Bookmarks</H3>
             <H1 class="my-3">Criar nova conta</H3>
-                {{ .message}}
+                {{if .message }}
+                <div class="alert alert-warning mx-5" role="alert">
+                    {{.message}}
+                </div>
+                {{end}}
             <form class="login-form" action="users" method="POST">
                 <input type="text" class="form-control my-2" name="name" placeholder="Seu nome" required>
                 <input class="form-control my-3" type="text" name="email" placeholder="email@servior.com" required />

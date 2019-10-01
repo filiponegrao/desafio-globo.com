@@ -15,23 +15,23 @@
                 <i class="fas fa-atlas"></i>
                 <H2 class="my-3 mx-4 text-white">My Bookmarks</H2>
             </a>
-           
         </nav>
 
-        <div class="container w-75 my-4 bg-light">
+        <div class="container w-50 my-4 bg-light">
             <div class="row">
                 <div class="col-10">
                     <h3 class="m-3">
-                        Bem-vindo {{.username}}
+                        Nova URL
                     </h3>
                 </div>
                 <div class="col-2">
-                    <form action="/create-bookmark" method="GET">
-                        <button type="submit" class="btn btn-outline-info m-3">Nova URL</button>
+                    <form action="bookmarks" method="GET">
+                        <button type="submit" class="btn btn-outline-danger m-3">
+                            Cancelar
+                        </button>
                     </form>
                 </div>
             </div>
-
             {{if .message}}
             <div class="row">
                 <div class="alert alert-warning mx-3" role="alert">
@@ -40,20 +40,18 @@
             </div>
             {{end}}
 
-            <div class="list-group">
-                {{range .bookmarks}}
-                <div class="list-group-item my-3">
-                    <h4>{{.URL}}</h4>
-                    <small>{{.Comment}}</small>
-                    <form action="/delete-bookmark/{{.ID}}" method="POST">
-                        <button type="submit" class="btn btn-outline-danger btn-sm float-right">Excluir</button>
-                    </form>
-                </div>
-                {{end}}
+            <div class="row">
+                <form action="/bookmarks" method="POST">
+                    <input type="text" name="url" placeholder="http://www.exemplo.com.br"
+                        class="form-control mx-4 my-2">
+                    <input type="text" name="comment" placeholder="Escreva seu comentário...."
+                        class="form-control mx-4 my-2">
+                    <button type="submit" class="btn btn-outline-success mx-4 my-2">CRIAR</button>
+                </form>
+
             </div>
-
-
         </div>
+    </div>
 
 
     </div>

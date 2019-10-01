@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
-	"net/http"
+	"log"
 
+	jwt "github.com/appleboy/gin-jwt"
 	dbpkg "github.com/filiponegrao/desafio-globo.com/db"
 	"github.com/filiponegrao/desafio-globo.com/helper"
 	"github.com/filiponegrao/desafio-globo.com/models"
@@ -142,82 +143,54 @@ func GetBookmark(c *gin.Context) {
 }
 
 func CreateBookmark(c *gin.Context) {
-	ver, err := version.New(c)
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
+
+	claims := jwt.ExtractClaims(c)
+	userID := int64(claims["id"].(float64))
 
 	db := dbpkg.DBInstance(c)
 	bookmark := models.Bookmark{}
 
 	if err := c.Bind(&bookmark); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	bookmark.UserID = userID
+	if err := db.Find(&bookmark.Owner, userID).Error; err != nil {
+		message := "Houve um problema com suas credenciais. Atuentique-se novamente."
+		c.HTML(200, "bookmarks.html", gin.H{"message": message})
 		return
 	}
 
 	if err := db.Create(&bookmark).Error; err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		message := err.Error()
+		c.HTML(200, "bookmarks.html", gin.H{"message": message})
 		return
 	}
 
-	if version.Range("1.0.0", "<=", ver) && version.Range(ver, "<", "2.0.0") {
-		// conditional branch by version.
-		// 1.0.0 <= this version < 2.0.0 !!
-	}
-
-	c.JSON(201, bookmark)
-}
-
-func UpdateBookmark(c *gin.Context) {
-	ver, err := version.New(c)
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
-	db := dbpkg.DBInstance(c)
-	id := c.Params.ByName("id")
-	bookmark := models.Bookmark{}
-
-	if db.First(&bookmark, id).Error != nil {
-		content := gin.H{"error": "bookmark with id#" + id + " not found"}
-		c.JSON(404, content)
-		return
-	}
-
-	if err := c.Bind(&bookmark); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := db.Save(&bookmark).Error; err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
-	if version.Range("1.0.0", "<=", ver) && version.Range(ver, "<", "2.0.0") {
-		// conditional branch by version.
-		// 1.0.0 <= this version < 2.0.0 !!
-	}
-
-	c.JSON(200, bookmark)
+	c.Redirect(303, "/bookmarks")
+	// GetBookmarksPage(c)
+	// c.HTML(200, "bookmarks.html", nil)
 }
 
 func DeleteBookmark(c *gin.Context) {
-	ver, err := version.New(c)
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
+
+	claims := jwt.ExtractClaims(c)
+	userID := int64(claims["id"].(float64))
 
 	db := dbpkg.DBInstance(c)
 	id := c.Params.ByName("id")
 	bookmark := models.Bookmark{}
 
 	if db.First(&bookmark, id).Error != nil {
-		content := gin.H{"error": "bookmark with id#" + id + " not found"}
-		c.JSON(404, content)
+		message := "URL não existe mais"
+		c.HTML(200, "bookmarks.html", message)
+		return
+	}
+
+	if bookmark.UserID != userID {
+		message := "Você nãoé o dono desta URL"
+		c.HTML(200, "bookmarks.html", message)
 		return
 	}
 
@@ -225,11 +198,6 @@ func DeleteBookmark(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-
-	if version.Range("1.0.0", "<=", ver) && version.Range(ver, "<", "2.0.0") {
-		// conditional branch by version.
-		// 1.0.0 <= this version < 2.0.0 !!
-	}
-
-	c.Writer.WriteHeader(http.StatusNoContent)
+	log.Println("PASSANDO AQUI")
+	ShowBookMarksPage(c, userID, "URL Excluída com sucesso.")
 }
