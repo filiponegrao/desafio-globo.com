@@ -14,6 +14,16 @@ PUT    /bookmarks/:id
 DELETE /bookmarks/:id
 ```
 
+### PasswordRecovers Resource
+
+```
+GET    /passwordrecovers
+GET    /passwordrecovers/:id
+POST   /passwordrecovers
+PUT    /passwordrecovers/:id
+DELETE /passwordrecovers/:id
+```
+
 ### Users Resource
 
 ```

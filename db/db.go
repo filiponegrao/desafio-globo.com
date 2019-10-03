@@ -30,6 +30,7 @@ func Connect() *gorm.DB {
 	if os.Getenv("AUTOMIGRATE") == "1" {
 		db.AutoMigrate(
 			&models.Bookmark{},
+			&models.PasswordRecover{},
 			&models.User{},
 		)
 	}
