@@ -4,7 +4,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/filiponegrao/convivva-server/config"
+	"github.com/filiponegrao/desafio-globo.com/config"
 	"github.com/filiponegrao/desafio-globo.com/controllers"
 	"github.com/filiponegrao/desafio-globo.com/db"
 	"github.com/filiponegrao/desafio-globo.com/server"
