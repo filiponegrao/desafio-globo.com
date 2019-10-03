@@ -59,6 +59,7 @@ func (conf EmailConfiguration) sendEmail(targetEmail string, text string, subjec
 	return err
 }
 
+// Teste
 func EmailChangedPassword(targetEmail string, link string) error {
 
 	message := "MyBookmarks informa:\n\n"
