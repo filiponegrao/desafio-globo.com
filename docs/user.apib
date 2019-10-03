@@ -16,6 +16,7 @@ Create a new user
         + name: NAME (string)
         + email: EMAIL (string)
         + password: PASSWORD (string)
+        + confirmPassword: CONFIRMPASSOWRD (string)
         + admin: false (boolean)
 
 + Response 201 (application/json; charset=utf-8)
@@ -68,6 +69,7 @@ Update an user.
         + name: NAME (string)
         + email: EMAIL (string)
         + password: PASSWORD (string)
+        + confirmPassword: CONFIRMPASSOWRD (string)
         + admin: false (boolean)
 
 + Response 200 (application/json; charset=utf-8)
@@ -91,6 +93,7 @@ Delete an user.
 + name: *NAME* (string)
 + email: *EMAIL* (string)
 + password: *PASSWORD* (string)
++ confirmPassword: *CONFIRMPASSOWRD* (string)
 + admin: *false* (boolean)
 + createdAt: `*2000-01-01 00:00:00*` (string)
 + updatedAt: `*2000-01-01 00:00:00*` (string)
