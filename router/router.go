@@ -59,15 +59,7 @@ func Initialize(r *gin.Engine) {
 		api.GET("/create-bookmark", controllers.GetCreateBookmarkPage)
 		api.POST("/bookmarks", controllers.CreateBookmark)
 
-		api.GET("/bookmarks/:id", controllers.GetBookmark)
-		// api.PUT("/bookmarks/:id", controllers.UpdateBookmark)
 		api.POST("/delete-bookmark/:id", controllers.DeleteBookmark)
-
-		// api.GET("/users", controllers.GetUsers)
-		// api.GET("/users/:id", controllers.GetUser)
-		// api.PUT("/users/:id", controllers.UpdateUser)
-		// api.DELETE("/users/:id", controllers.DeleteUser)
-
 	}
 }
 

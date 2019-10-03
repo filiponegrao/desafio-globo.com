@@ -98,50 +98,6 @@ func GetBookmarks(c *gin.Context) {
 	}
 }
 
-func GetBookmark(c *gin.Context) {
-	ver, err := version.New(c)
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
-	db := dbpkg.DBInstance(c)
-	parameter, err := dbpkg.NewParameter(c, models.Bookmark{})
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
-	db = parameter.SetPreloads(db)
-	bookmark := models.Bookmark{}
-	id := c.Params.ByName("id")
-	fields := helper.ParseFields(c.DefaultQuery("fields", "*"))
-	queryFields := helper.QueryFields(models.Bookmark{}, fields)
-
-	if err := db.Select(queryFields).First(&bookmark, id).Error; err != nil {
-		content := gin.H{"error": "bookmark with id#" + id + " not found"}
-		c.JSON(404, content)
-		return
-	}
-
-	fieldMap, err := helper.FieldToMap(bookmark, fields)
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
-	if version.Range("1.0.0", "<=", ver) && version.Range(ver, "<", "2.0.0") {
-		// conditional branch by version.
-		// 1.0.0 <= this version < 2.0.0 !!
-	}
-
-	if _, ok := c.GetQuery("pretty"); ok {
-		c.IndentedJSON(200, fieldMap)
-	} else {
-		c.JSON(200, fieldMap)
-	}
-}
-
 func CreateBookmark(c *gin.Context) {
 
 	claims := jwt.ExtractClaims(c)

@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"log"
 	"strings"
+	"time"
 
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/badoux/checkmail"
@@ -113,39 +113,40 @@ func ForgotPassword(c *gin.Context) {
 
 	db := dbpkg.DBInstance(c)
 
-	body := c.Request.RequestURI
-	log.Println(body)
+	email := c.PostForm("email")
+
 	var user models.User
 
-	parts := strings.Split(body, "email=")
-	if len(parts) <= 1 {
+	if email == "" {
 		c.JSON(400, gin.H{"error": "Faltando parametro de email"})
 		return
 	}
-	email := parts[1]
-	err := checkmail.ValidateFormat(user.Email)
+
+	err := checkmail.ValidateFormat(email)
 	if err != nil {
-		message := "E-mail não possui um formato valido"
-		c.HTML(200, "forgot-password.html", gin.H{"message": message})
+		// message := "E-mail não possui um formato valido"
+		c.HTML(200, "forgot-password.html", gin.H{"message": err.Error()})
 		return
 	}
 
 	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		message := err.Error()
+		c.HTML(200, "forgot-password.html", gin.H{"message": message})
 		return
 	}
 
-	// password := tools.RandomString(6)
-	// passwordEncode := tools.EncryptTextSHA512(password)
+	contentHash := user.Email + time.Now().String()
+	encodedContent := tools.EncryptTextSHA512(contentHash)
+	var recover models.PasswordRecover
+	recover.UserID = user.ID
+	recover.Hash = encodedContent
 
-	// user.Password = passwordEncode
+	if err := db.Create(recover).Error; err != nil {
+		message := err.Error()
+		c.HTML(200, "forgot-password.html", gin.H{"message": message})
+		return
+	}
 
-	// if err := db.Save(user).Error; err != nil {
-	// 	c.JSON(400, gin.H{"error": err.Error()})
-	// 	return
-	// }
+	c.HTML(200, "login.html", gin.H{"message": "Instruções enviadas com sucesso!"})
 
-	// EmailPasswordNew(user.Email, password)
-
-	c.JSON(200, "Nova senha enviada para o email!")
 }

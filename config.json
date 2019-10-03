@@ -1,0 +1,11 @@
+{
+	"environment": "prod",
+	"api-port": "8080",
+	"api-name": "My Bookmarks",
+	"email": "filiponegrao@gmail.com",
+	"email-password": "googleArtFtn2018!",
+	"email-domain": "@gmail.com",
+	"email-server": "smtp.gmail.com",
+	"email-port": "587",
+    "site": "filiponegrao@gmail.com"
+}
