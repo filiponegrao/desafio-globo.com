@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"log"
+	"strings"
 
 	jwt "github.com/appleboy/gin-jwt"
 	dbpkg "github.com/filiponegrao/desafio-globo.com/db"
@@ -15,6 +16,10 @@ func GetLoginPage(c *gin.Context) {
 
 func GetRegsisterPage(c *gin.Context) {
 	c.HTML(200, "register.html", nil)
+}
+
+func GetForgotPasswordPage(c *gin.Context) {
+	c.HTML(200, "forgot-password.html", nil)
 }
 
 func GetBookmarksPage(c *gin.Context) {
@@ -53,9 +58,13 @@ func ShowBookMarksPage(c *gin.Context, userId int64, message string) {
 }
 
 func GetCreateBookmarkPage(c *gin.Context) {
-
-	// claims := jwt.ExtractClaims(c)
-	// userID := int64(claims["id"].(float64))
-
 	c.HTML(200, "create-bookmark.html", nil)
+}
+
+func CheckIncorrectInput(input string) bool {
+	if strings.ContainsAny(input, "'\\-\"") {
+		return true
+	}
+
+	return false
 }

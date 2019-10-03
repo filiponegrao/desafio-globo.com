@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"log"
 	"strings"
 
 	jwt "github.com/appleboy/gin-jwt"
+	"github.com/badoux/checkmail"
 	dbpkg "github.com/filiponegrao/desafio-globo.com/db"
 	"github.com/filiponegrao/desafio-globo.com/models"
 	"github.com/filiponegrao/desafio-globo.com/tools"
@@ -105,4 +107,45 @@ func UserAuthentication(c *gin.Context) (interface{}, error) {
 
 func UserAuthorization(user interface{}, c *gin.Context) bool {
 	return true
+}
+
+func ForgotPassword(c *gin.Context) {
+
+	db := dbpkg.DBInstance(c)
+
+	body := c.Request.RequestURI
+	log.Println(body)
+	var user models.User
+
+	parts := strings.Split(body, "email=")
+	if len(parts) <= 1 {
+		c.JSON(400, gin.H{"error": "Faltando parametro de email"})
+		return
+	}
+	email := parts[1]
+	err := checkmail.ValidateFormat(user.Email)
+	if err != nil {
+		message := "E-mail não possui um formato valido"
+		c.HTML(200, "forgot-password.html", gin.H{"message": message})
+		return
+	}
+
+	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	// password := tools.RandomString(6)
+	// passwordEncode := tools.EncryptTextSHA512(password)
+
+	// user.Password = passwordEncode
+
+	// if err := db.Save(user).Error; err != nil {
+	// 	c.JSON(400, gin.H{"error": err.Error()})
+	// 	return
+	// }
+
+	// EmailPasswordNew(user.Email, password)
+
+	c.JSON(200, "Nova senha enviada para o email!")
 }
