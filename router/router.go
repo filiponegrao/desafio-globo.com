@@ -7,9 +7,6 @@ import (
 
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/filiponegrao/desafio-globo.com/controllers"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
-	csrf "github.com/utrack/gin-csrf"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,15 +20,15 @@ func Initialize(r *gin.Engine) {
 	r.Use(LoginInterceptor())
 
 	// Anti CSRF
-	store := cookie.NewStore([]byte("secret"))
-	r.Use(sessions.Sessions("mysession", store))
-	r.Use(csrf.Middleware(csrf.Options{
-		Secret: "DesafioGlobo.Com.MyBookmarks",
-		ErrorFunc: func(c *gin.Context) {
-			c.String(400, "CSRF token mismatch")
-			c.Abort()
-		},
-	}))
+	// store := cookie.NewStore([]byte("secret"))
+	// r.Use(sessions.Sessions("mysession", store))
+	// r.Use(csrf.Middleware(csrf.Options{
+	// 	Secret: "DesafioGlobo.Com.MyBookmarks",
+	// 	ErrorFunc: func(c *gin.Context) {
+	// 		c.String(400, "CSRF token mismatch")
+	// 		c.Abort()
+	// 	},
+	// }))
 
 	// Metodos sem autorizacao
 
