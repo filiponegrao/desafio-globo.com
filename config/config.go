@@ -7,6 +7,7 @@ import (
 )
 
 type Configuration struct {
+	IP            string `json:"ip"`
 	Environment   string `json:"environment"`
 	ApiPort       string `json:"api-port"`
 	ApiName       string `json:"api-name"`

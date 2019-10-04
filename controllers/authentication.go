@@ -141,12 +141,75 @@ func ForgotPassword(c *gin.Context) {
 	recover.UserID = user.ID
 	recover.Hash = encodedContent
 
-	if err := db.Create(recover).Error; err != nil {
+	if err := db.Create(&recover).Error; err != nil {
 		message := err.Error()
 		c.HTML(200, "forgot-password.html", gin.H{"message": message})
 		return
 	}
 
+	path := "/new-password/" + encodedContent
+
+	EmailChangedPassword(email, path)
+
 	c.HTML(200, "login.html", gin.H{"message": "Instruções enviadas com sucesso!"})
 
+}
+
+func NewPassword(c *gin.Context) {
+
+	db := dbpkg.DBInstance(c)
+
+	hash := c.Param("hash")
+	password := c.PostForm("password")
+	confirmPassword := c.PostForm("confirmPassword")
+
+	if password != confirmPassword {
+		message := "Senhas precisam ser iguais"
+		c.HTML(200, "new-password.html", gin.H{"message": message})
+		return
+	}
+
+	if !checkPassword(password) {
+		message := "Senha não confere com o padrão desejado!"
+		c.HTML(200, "new-password.html", gin.H{"message": message})
+		return
+	}
+
+	var recover models.PasswordRecover
+	if err := db.Where("hash = ?", hash).First(&recover).Error; err != nil {
+		message := "Hash inválido!"
+		c.HTML(200, "new-password.html", gin.H{"message": message})
+		return
+	}
+
+	var user models.User
+	if err := db.First(&user, recover.UserID).Error; err != nil {
+		message := err.Error()
+		c.HTML(200, "new-password.html", gin.H{"message": message})
+		return
+	}
+
+	encoded := tools.EncryptTextSHA512(password)
+
+	tx := db.Begin()
+	user.Password = encoded
+	if err := tx.Save(&user).Error; err != nil {
+		tx.Rollback()
+		message := err.Error()
+		c.HTML(200, "new-password.html", gin.H{"message": message})
+		return
+	}
+
+	if err := tx.Delete(&recover).Error; err != nil {
+		tx.Rollback()
+		message := err.Error()
+		c.HTML(200, "new-password.html", gin.H{"message": message})
+		return
+	}
+
+	tx.Commit()
+
+	c.Redirect(303, "/login")
+	c.Set("messsage", "teste!")
+	// c.HTML(200, "new-password.html", gin.H{"message": "Alterado com sucesso!"})
 }

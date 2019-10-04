@@ -1,9 +1,10 @@
 {
+	"ip": "http://localhost",
 	"environment": "prod",
 	"api-port": "8080",
 	"api-name": "My Bookmarks",
-	"email": "filiponegrao@gmail.com",
-	"email-password": "googleArtFtn2018!",
+	"email": "filipotester@gmail.com",
+	"email-password": "filipoTester2019!",
 	"email-domain": "@gmail.com",
 	"email-server": "smtp.gmail.com",
 	"email-port": "587",

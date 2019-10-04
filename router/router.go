@@ -24,6 +24,7 @@ func Initialize(r *gin.Engine) {
 	r.POST("/users", controllers.CreateUser)
 	r.GET("/register", controllers.GetRegsisterPage)
 	r.GET("/forgot-password", controllers.GetForgotPasswordPage)
+	r.GET("/new-password/:hash", controllers.GetNewPasswordPage)
 
 	r.GET("", RedirectToLogin)
 
@@ -52,6 +53,7 @@ func Initialize(r *gin.Engine) {
 	// api.POST("/login", authMiddleware.LoginHandler)
 	api.POST("/login", authMiddleware.LoginHandler)
 	api.POST("/forgot-password", controllers.ForgotPassword)
+	api.POST("/new-password/:hash", controllers.NewPassword)
 
 	api.Use(authMiddleware.MiddlewareFunc())
 	{

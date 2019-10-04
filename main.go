@@ -39,8 +39,10 @@ func initialConfigure(path string) {
 		Mail:     conf.Email,
 		Password: conf.EmailPassword,
 		Server:   conf.EmailServer,
-		Port:     conf.EmailPort,
+		MailPort: conf.EmailPort,
 		Site:     conf.Site,
+		IP:       conf.IP,
+		Port:     conf.ApiPort,
 	}
 	controllers.ConfigEmailEngine(confEmail)
 }

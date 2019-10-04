@@ -22,6 +22,10 @@ func GetForgotPasswordPage(c *gin.Context) {
 	c.HTML(200, "forgot-password.html", nil)
 }
 
+func GetNewPasswordPage(c *gin.Context) {
+	c.HTML(200, "new-password.html", nil)
+}
+
 func GetBookmarksPage(c *gin.Context) {
 
 	claims := jwt.ExtractClaims(c)

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"net/mail"
 	"net/smtp"
 
@@ -8,10 +9,12 @@ import (
 )
 
 type EmailConfiguration struct {
+	IP       string
+	Port     string
 	Mail     string
 	Password string
 	Server   string
-	Port     string
+	MailPort string
 	Site     string
 }
 
@@ -20,10 +23,12 @@ var mainConf EmailConfiguration
 func ConfigEmailEngine(engine EmailConfiguration) {
 
 	mainConf = EmailConfiguration{
+		engine.IP,
+		engine.Port,
 		engine.Mail,
 		engine.Password,
 		engine.Server,
-		engine.Port,
+		engine.MailPort,
 		engine.Site,
 	}
 }
@@ -40,26 +45,28 @@ func (conf EmailConfiguration) sendEmail(targetEmail string, text string, subjec
 	// Connect to the server, authenticate, set the sender and recipient,
 	// and send the email all in one step.
 
-	address := conf.Server + ":" + conf.Port
+	address := conf.Server + ":" + conf.MailPort
 
 	message := email.NewMessage(subject, text)
 	sender := mail.Address{}
 	sender.Address = conf.Mail
-	sender.Name = "Suporte Convivva"
+	sender.Name = "Suporte MyBookmarks"
 	message.From = sender
 	message.To = []string{targetEmail}
 
 	// err := message.Attach("logo1.png")
-	// if err != nil {
-	// 	log.Println(err)
-	// }
 
 	err := email.Send(address, auth, message)
+	if err != nil {
+		log.Println(err)
+	}
 
 	return err
 }
 
-func EmailChangedPassword(targetEmail string, link string) error {
+func EmailChangedPassword(targetEmail string, path string) error {
+
+	link := mainConf.IP + ":" + mainConf.Port + path
 
 	message := "MyBookmarks informa:\n\n"
 	message += "Voce solicitou uma troca de senha!\n\n"
