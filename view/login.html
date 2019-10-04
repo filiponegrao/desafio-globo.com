@@ -44,9 +44,10 @@
                 {{.message}}
             </div>
             {{end}}
-            <form class="login-form" action="/login" method="POST">
+            <form class="login-form" action="/{{.url}}" method="POST">
                 <input class="form-control mb-3" type="text" name="username" placeholder="email@servior.com" required />
                 <input class="form-control my-3" type="password" name="password" placeholder="senha" required />
+
                 <a href="forgot-password" class="register">Esqueci minha senha</a>
                 <br>
                 <button class="btn btn-default login-button mt-3" (click)="login();">Entrar</button>

@@ -11,7 +11,7 @@ import (
 )
 
 func GetLoginPage(c *gin.Context) {
-	c.HTML(200, "login.html", nil)
+	c.HTML(200, "login.html", gin.H{"url": "login"})
 }
 
 func GetRegsisterPage(c *gin.Context) {
