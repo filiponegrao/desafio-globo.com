@@ -28,6 +28,8 @@
                 </div>
                 <div class="col-2">
                     <form action="/create-bookmark" method="GET">
+                        <input hidden name="_csrf" value="{{.token}}"/>
+
                         <button type="submit" class="btn btn-outline-info m-3">Nova URL</button>
                     </form>
                 </div>
@@ -47,6 +49,7 @@
                     <h4>{{.URL}}</h4>
                     <small>{{.Comment}}</small>
                     <form action="/delete-bookmark/{{.ID}}" method="POST">
+                        <input hidden name="_csrf" value="{{$.token}}"/>
                         <button type="submit" class="btn btn-outline-danger btn-sm float-right">Excluir</button>
                     </form>
                 </div>

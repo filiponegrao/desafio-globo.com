@@ -46,6 +46,7 @@
                         class="form-control mx-4 my-2">
                     <input type="text" name="comment" placeholder="Escreva seu comentário...."
                         class="form-control mx-4 my-2">
+                    <input hidden name="_csrf" value="{{.token}}" />
                     <button type="submit" class="btn btn-outline-success mx-4 my-2">CRIAR</button>
                 </form>
 

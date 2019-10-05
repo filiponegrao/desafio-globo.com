@@ -7,6 +7,9 @@ import (
 
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/filiponegrao/desafio-globo.com/controllers"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	csrf "github.com/utrack/gin-csrf"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,20 +20,18 @@ func Initialize(r *gin.Engine) {
 
 	r.LoadHTMLGlob("view/*")
 
-	r.Use(LoginInterceptor())
+	store := cookie.NewStore([]byte("secret"))
+	session := sessions.Sessions("mysession", store)
+	r.Use(session)
+	r.Use(csrf.Middleware(csrf.Options{
+		Secret: "Globo.com.deasfio.secret",
+		ErrorFunc: func(c *gin.Context) {
+			c.String(400, "CSRF token mismatch")
+			c.Abort()
+		},
+	}))
 
-	// Anti CSRF
-	// store := cookie.NewStore([]byte("secret"))
-	// r.Use(sessions.Sessions("mysession", store))
-	// r.Use(csrf.Middleware(csrf.Options{
-	// 	Secret: "DesafioGlobo.Com.MyBookmarks",
-	// 	ErrorFunc: func(c *gin.Context) {
-	// 		c.String(400, "CSRF token mismatch")
-	// 		c.Abort()
-	// 	},
-	// }))
-
-	// Metodos sem autorizacao
+	r.Use(Interceptor())
 
 	// the jwt middleware
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
@@ -54,17 +55,20 @@ func Initialize(r *gin.Engine) {
 	}
 
 	api := r.Group("")
+
+	// Metodos sem autorizacao
+	api.GET("", RedirectToLogin)
 	api.GET("/login", controllers.GetLoginPage)
 	api.POST("/users", controllers.CreateUser)
 	api.GET("/register", controllers.GetRegsisterPage)
 	api.GET("/forgot-password", controllers.GetForgotPasswordPage)
 	api.GET("/new-password/:hash", controllers.GetNewPasswordPage)
 
-	r.GET("", RedirectToLogin)
 	api.POST("/login", authMiddleware.LoginHandler)
 	api.POST("/forgot-password", controllers.ForgotPassword)
 	api.POST("/new-password/:hash", controllers.NewPassword)
 
+	// Metodos com autorizacao
 	api.Use(authMiddleware.MiddlewareFunc())
 	{
 		api.GET("/bookmarks", controllers.GetBookmarksPage)
@@ -73,6 +77,7 @@ func Initialize(r *gin.Engine) {
 
 		api.POST("/delete-bookmark/:id", controllers.DeleteBookmark)
 	}
+
 }
 
 func RedirectToLogin(c *gin.Context) {
@@ -86,12 +91,17 @@ func LoginResponse(c *gin.Context, n int, token string, time time.Time) {
 	c.Redirect(303, "/bookmarks")
 }
 
-func LoginInterceptor() gin.HandlerFunc {
+func Interceptor() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Secure actions
 		c.Header("X-Frame-Options", "deny")
 		c.Header("X-XSS-Protection", "1")
 		c.Header("X-Content-Type-Options", "nosniff")
+		// // CRSF Token
+		// token := csrf.GetToken(c)
+		// log.Println("Teste")
+		// log.Println(token)
+		// c.Request.Header.Set("X-CSRF-TOKEN", token)
 
 		resp, err := c.Cookie("authorization")
 		if err != nil {

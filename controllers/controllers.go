@@ -8,22 +8,29 @@ import (
 	dbpkg "github.com/filiponegrao/desafio-globo.com/db"
 	"github.com/filiponegrao/desafio-globo.com/models"
 	"github.com/gin-gonic/gin"
+	csrf "github.com/utrack/gin-csrf"
 )
 
 func GetLoginPage(c *gin.Context) {
-	c.HTML(200, "login.html", nil)
+	token := csrf.GetToken(c)
+	c.HTML(200, "login.html", gin.H{"token": token})
 }
 
 func GetRegsisterPage(c *gin.Context) {
-	c.HTML(200, "register.html", nil)
+	token := csrf.GetToken(c)
+	c.HTML(200, "register.html", gin.H{"token": token})
 }
 
 func GetForgotPasswordPage(c *gin.Context) {
-	c.HTML(200, "forgot-password.html", nil)
+	token := csrf.GetToken(c)
+
+	c.HTML(200, "forgot-password.html", gin.H{"token": token})
 }
 
 func GetNewPasswordPage(c *gin.Context) {
-	c.HTML(200, "new-password.html", nil)
+	token := csrf.GetToken(c)
+
+	c.HTML(200, "new-password.html", gin.H{"token": token})
 }
 
 func GetBookmarksPage(c *gin.Context) {
@@ -42,6 +49,8 @@ func GetBookmarksPage(c *gin.Context) {
 }
 
 func ShowBookMarksPage(c *gin.Context, userId int64, message string) {
+	token := csrf.GetToken(c)
+
 	db := dbpkg.DBInstance(c)
 
 	var user models.User
@@ -55,6 +64,7 @@ func ShowBookMarksPage(c *gin.Context, userId int64, message string) {
 	}
 
 	c.HTML(200, "bookmarks.html", gin.H{
+		"token":     token,
 		"username":  user.Name,
 		"bookmarks": bookmarks,
 		"message":   m,
@@ -62,7 +72,9 @@ func ShowBookMarksPage(c *gin.Context, userId int64, message string) {
 }
 
 func GetCreateBookmarkPage(c *gin.Context) {
-	c.HTML(200, "create-bookmark.html", nil)
+	token := csrf.GetToken(c)
+
+	c.HTML(200, "create-bookmark.html", gin.H{"token": token})
 }
 
 func CheckIncorrectInput(input string) bool {
