@@ -25,6 +25,7 @@ func Initialize(r *gin.Engine) {
 	r.Use(session)
 	r.Use(csrf.Middleware(csrf.Options{
 		Secret: "Globo.com.deasfio.secret",
+		// IgnoreMethods: []string{"/new-password/:hash"},
 		ErrorFunc: func(c *gin.Context) {
 			c.String(400, "CSRF token mismatch")
 			c.Abort()

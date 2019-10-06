@@ -29,7 +29,6 @@ func GetForgotPasswordPage(c *gin.Context) {
 
 func GetNewPasswordPage(c *gin.Context) {
 	token := csrf.GetToken(c)
-
 	c.HTML(200, "new-password.html", gin.H{"token": token})
 }
 

@@ -7,6 +7,7 @@ import (
 	dbpkg "github.com/filiponegrao/desafio-globo.com/db"
 	"github.com/filiponegrao/desafio-globo.com/models"
 	"github.com/filiponegrao/desafio-globo.com/tools"
+	csrf "github.com/utrack/gin-csrf"
 
 	"github.com/gin-gonic/gin"
 )
@@ -60,7 +61,9 @@ func CreateUser(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	c.HTML(200, "login.html", gin.H{"message": "Usuário cadastrado!"})
+	token := csrf.GetToken(c)
+
+	c.HTML(200, "login.html", gin.H{"message": "Usuário cadastrado!", "token": token})
 }
 
 func checkPassword(password string) bool {
