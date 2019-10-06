@@ -19,6 +19,8 @@ func Config(r *gin.Engine) {
 }
 
 func CreateUser(c *gin.Context) {
+	token := csrf.GetToken(c)
+
 	db := dbpkg.DBInstance(c)
 	user := models.User{}
 
@@ -30,7 +32,7 @@ func CreateUser(c *gin.Context) {
 	missing := user.MissingFields()
 	if missing != "" {
 		message := "Faltando campo de " + missing
-		c.HTML(200, "register.html", gin.H{"message": message})
+		c.HTML(200, "register.html", gin.H{"message": message, "token": token})
 		return
 	}
 
@@ -38,19 +40,19 @@ func CreateUser(c *gin.Context) {
 	err := checkmail.ValidateFormat(user.Email)
 	if err != nil {
 		message := "E-mail não possui um formato valido"
-		c.HTML(200, "register.html", gin.H{"message": message})
+		c.HTML(200, "register.html", gin.H{"message": message, "token": token})
 		return
 	}
 
 	if user.Password != user.ConfirmPassowrd {
 		message := "Senhas precisam ser iguais"
-		c.HTML(200, "register.html", gin.H{"message": message})
+		c.HTML(200, "register.html", gin.H{"message": message, "token": token})
 		return
 	}
 
 	if !checkPassword(user.Password) {
 		message := "Senha não confere com o padrão desejado!"
-		c.HTML(200, "register.html", gin.H{"message": message})
+		c.HTML(200, "register.html", gin.H{"message": message, "token": token})
 		return
 	}
 
@@ -61,7 +63,6 @@ func CreateUser(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	token := csrf.GetToken(c)
 
 	c.HTML(200, "login.html", gin.H{"message": "Usuário cadastrado!", "token": token})
 }
