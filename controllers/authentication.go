@@ -95,7 +95,7 @@ func UserAuthentication(c *gin.Context) (interface{}, error) {
 
 	if encPassword != user.Password {
 		message := "Usuário ou senha incorretos"
-		c.HTML(200, "login.html", gin.H{"message": message})
+		c.HTML(200, "login.html", gin.H{"message": message, "token": token})
 		return nil, nil
 	}
 
