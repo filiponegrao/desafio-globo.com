@@ -10,6 +10,7 @@ import (
 	"github.com/filiponegrao/desafio-globo.com/models"
 	"github.com/filiponegrao/desafio-globo.com/tools"
 	"github.com/gin-gonic/gin"
+	csrf "github.com/utrack/gin-csrf"
 )
 
 type login struct {
@@ -56,6 +57,7 @@ func UserUnauthorized(c *gin.Context, code int, message string) {
 }
 
 func UserAuthentication(c *gin.Context) (interface{}, error) {
+	token := csrf.GetToken(c)
 
 	var loginVals login
 
@@ -71,32 +73,29 @@ func UserAuthentication(c *gin.Context) (interface{}, error) {
 	if email == "" {
 		message := "Faltando email"
 		// c.JSON(400, gin.H{"error": message})
-		c.HTML(200, "login.html", gin.H{"message": message})
+		c.HTML(200, "login.html", gin.H{"message": message, "token": token})
 		return nil, nil
 	}
 
 	if password == "" {
 		message := "Faltando senha (password)"
-		c.HTML(200, "login.html", gin.H{"message": message})
+		c.HTML(200, "login.html", gin.H{"message": message, "token": token})
 		return nil, nil
 	}
 
 	var user models.User
 
 	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
-		//message := "Usuario com email " + email + " nao encontrado."
-		//c.JSON(400, gin.H{"error": message})
-		c.HTML(200, "login.html", gin.H{"message": "Usuário ou senha incorretos"})
+		message := "Usuário ou senha incorretos"
+		c.HTML(200, "login.html", gin.H{"message": message, "token": token})
 		return nil, nil
 	}
 
 	encPassword := tools.EncryptTextSHA512(password)
 
 	if encPassword != user.Password {
-		//message := "Senha incorreta"
-		//c.JSON(400, gin.H{"error": message})
-		c.HTML(200, "login.html", gin.H{"message": "Usuário ou senha incorretos"})
-
+		message := "Usuário ou senha incorretos"
+		c.HTML(200, "login.html", gin.H{"message": message})
 		return nil, nil
 	}
 
@@ -110,6 +109,7 @@ func UserAuthorization(user interface{}, c *gin.Context) bool {
 }
 
 func ForgotPassword(c *gin.Context) {
+	token := csrf.GetToken(c)
 
 	db := dbpkg.DBInstance(c)
 
@@ -118,20 +118,20 @@ func ForgotPassword(c *gin.Context) {
 	var user models.User
 
 	if email == "" {
-		c.JSON(400, gin.H{"error": "Faltando parametro de email"})
+		c.JSON(400, gin.H{"error": "Faltando parametro de email", "token": token})
 		return
 	}
 
 	err := checkmail.ValidateFormat(email)
 	if err != nil {
-		// message := "E-mail não possui um formato valido"
-		c.HTML(200, "forgot-password.html", gin.H{"message": err.Error()})
+		message := err.Error()
+		c.HTML(200, "forgot-password.html", gin.H{"message": message, "token": token})
 		return
 	}
 
 	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
 		message := err.Error()
-		c.HTML(200, "forgot-password.html", gin.H{"message": message})
+		c.HTML(200, "forgot-password.html", gin.H{"message": message, "token": token})
 		return
 	}
 
@@ -143,7 +143,7 @@ func ForgotPassword(c *gin.Context) {
 
 	if err := db.Create(&recover).Error; err != nil {
 		message := err.Error()
-		c.HTML(200, "forgot-password.html", gin.H{"message": message})
+		c.HTML(200, "forgot-password.html", gin.H{"message": message, "token": token})
 		return
 	}
 
@@ -151,11 +151,12 @@ func ForgotPassword(c *gin.Context) {
 
 	EmailChangedPassword(email, path)
 
-	c.HTML(200, "login.html", gin.H{"message": "Instruções enviadas com sucesso!"})
+	c.HTML(200, "login.html", gin.H{"message": "Instruções enviadas com sucesso!", "token": token})
 
 }
 
 func NewPassword(c *gin.Context) {
+	token := csrf.GetToken(c)
 
 	db := dbpkg.DBInstance(c)
 
@@ -165,27 +166,27 @@ func NewPassword(c *gin.Context) {
 
 	if password != confirmPassword {
 		message := "Senhas precisam ser iguais"
-		c.HTML(200, "new-password.html", gin.H{"message": message})
+		c.HTML(200, "new-password.html", gin.H{"message": message, "token": token})
 		return
 	}
 
 	if !checkPassword(password) {
 		message := "Senha não confere com o padrão desejado!"
-		c.HTML(200, "new-password.html", gin.H{"message": message})
+		c.HTML(200, "new-password.html", gin.H{"message": message, "token": token})
 		return
 	}
 
 	var recover models.PasswordRecover
 	if err := db.Where("hash = ?", hash).First(&recover).Error; err != nil {
 		message := "Hash inválido!"
-		c.HTML(200, "new-password.html", gin.H{"message": message})
+		c.HTML(200, "new-password.html", gin.H{"message": message, "token": token})
 		return
 	}
 
 	var user models.User
 	if err := db.First(&user, recover.UserID).Error; err != nil {
 		message := err.Error()
-		c.HTML(200, "new-password.html", gin.H{"message": message})
+		c.HTML(200, "new-password.html", gin.H{"message": message, "token": token})
 		return
 	}
 
@@ -196,20 +197,18 @@ func NewPassword(c *gin.Context) {
 	if err := tx.Save(&user).Error; err != nil {
 		tx.Rollback()
 		message := err.Error()
-		c.HTML(200, "new-password.html", gin.H{"message": message})
+		c.HTML(200, "new-password.html", gin.H{"message": message, "token": token})
 		return
 	}
 
 	if err := tx.Delete(&recover).Error; err != nil {
 		tx.Rollback()
 		message := err.Error()
-		c.HTML(200, "new-password.html", gin.H{"message": message})
+		c.HTML(200, "new-password.html", gin.H{"message": message, "token": token})
 		return
 	}
 
 	tx.Commit()
 
 	c.Redirect(303, "/login")
-	c.Set("messsage", "teste!")
-	// c.HTML(200, "new-password.html", gin.H{"message": "Alterado com sucesso!"})
 }
